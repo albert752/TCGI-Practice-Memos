@@ -2,7 +2,7 @@
 
 ## Exercice 1
 ### Section 1
-First of all, to inicialize the simulation, run:
+First of all, to initialize the simulation, run:
 ```
 simctl switching-vlan start
 ```
@@ -54,4 +54,14 @@ From inside to outside of the frame:
 		populated by the length of the LLC frame. If we add the length of the
 		message (12 bytes) plus the Control field and both SAPs, it results to
 		a value of 15, the same as the one on the parameter length.
+
+## Author
+
+* **Albert Azemar i Rovira** - *Initial work* -
+	[albert752](https://github.com/albert752)
+
+## License
+
+This project is licensed under the MIT License - see the
+[LICENSE.md](../LICENSE.md) file for details
 
