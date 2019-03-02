@@ -1,7 +1,7 @@
 # Practice 1 memo of TCGI
 
 ## Exercice 1
-First of all, to inicialize the simulation, run:
+First of all, to inicialize the simulation, run:j
 ```
 simctl switching-vlan start
 ```
@@ -21,4 +21,4 @@ On Alice:
 ```
 server-chat-LLC1.py
 ```
-Notice that
+Notice that the default parameters are `eth 0` and the SAP `0x88`.
