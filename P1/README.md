@@ -72,11 +72,13 @@ First of all we run `brctl show` on L1 and we get this output:
 bridge name     bridge id               STP enabled     interfaces
 br1             8000.fefd00000700       no              eth0
                                                         eth1
-														eth2
+                                                        eth2
 ```
 As we can see the spanning tree protocol is not enabled (we don't have any loop
 topolgy so it is not needed). The interfaces `eth0`, `eth1` and `eth2` are
-assigned to the br1 as shown on the instructions diagram. 
+assigned to the br1 as shown on the instructions diagram. The same happens with
+the other switches, L2 and L3.
+
 
 ## Author
 
