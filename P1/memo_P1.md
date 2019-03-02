@@ -54,6 +54,18 @@ From inside to outside of the frame:
 		populated by the length of the LLC frame. If we add the length of the
 		message (12 bytes) plus the Control field and both SAPs, it results to
 		a value of 15, the same as the one on the parameter length.
+	
+### Section 2
+To reproduce the descrived scenario, we have to run two servers on Alice and
+then two clients, one on Bob and the other on Carla. Other configurations fail
+to work because is the client who starts the comunication. If we run
+multiple cients in one machine, once we send a message using one of them, we
+lose the hability to interface with the others. 
+
+We could also specify diferent SAPs for each server but it wouldi yield
+problems that I don't know how to solve yet
+
+### Section 3
 
 ## Author
 
