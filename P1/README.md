@@ -204,11 +204,60 @@ This las image shows all teh captured frames and the last frame information:
 ***Note:*** _This scenario can only be achieved by setting an ageing value high
 enough to ensure that the @MACs are not forgotten after the first message._
 
+## Exercice 4
+### Section 3
+We used the following command to set-up both 10 and 20 VLANs. There was no need
+to use tags for this configuration:
+
+```
+root@L3:~# brctl addbr br3-10 					
+root@L3:~# brctl addif br3-10 eth0
+root@L3:~# brctl addif br3-10 eth1
+root@L3:~# ifconfig eth0 up
+root@L3:~# ifconfig eth1 up 
+root@L3:~# ifconfig br3-10 10.0.0.31/24
+br3-10: port 1(eth0) entered forwarding state
+br3-10: port 2(eth2) entered forwarding state
+
+root@L3:~# brctl addbr br3-20
+root@L3:~# brctl addif br3-20 eth2
+root@L3:~# brctl addif br3-20 eth3
+root@L3:~# ifconfig eth2 up
+root@L3:~# ifconfig eth3 up 
+root@L3:~# ifconfig br3-20 10.0.0.32/24
+br3-10: port 1(eth1) entered forwarding state
+br3-10: port 2(eth2) entered forwarding state
+
+```
+
+Both sets of commands do the same. The first line creates the brige with name
+`br3-{VLAN ID}`. The two following ones add the needed interfaces for each
+VLAN. Then we ensure they are up and set up an IP for each bridge to start
+forwarding frames. If we run `brctl show` we get this satisfactory output:
+
+```
+root@L3:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br3-10          8000.fefd00000900       no              eth0
+                                                        eth2
+br3-20			8000.fefd00000901		no              eth1
+                                                        eth3
+
+```
+While capturing on all SimNets on L3, we send a broadcast frame from Carlas
+station. This is the output we get on Wireshark:
+
+![Image 7](./images/scrot_7.png)
+
+As expected, only SimNets 5 and 7 capture the frame.
+
+
 ## Issues
 * On exercice number 2.1, errors with two servers, two clients with different
 	SAPs.
 * On exercice number 3.1, I can not determine who is the owner of the
 	unidentified @MACs.
+* Is a VLAN defined by its ID? (Exercices 4.1 and 4.2)
 
 
 ## Author
