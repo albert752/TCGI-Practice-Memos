@@ -135,18 +135,80 @@ port no mac addr                is local?       ageing timer
 ```
 On the other hand, by analizing the captured frame in SimNet1 and SimNet2 we
 can see the frame traveling from Alices machine to Bobs. The frame structure is
-the same as in the ones captured on Exercise 1. It is worth mentioning that the
-time of capture between SimNet1 and SimNet2 is slightly different due to
-frame processing.
+the same as in the ones captured on Exercise 1. It is worth mentioning that,
+due to teh fact that the bridge does not now where is Bobs machine, it
+broadcasts the frame to all of its ports. This is why we see the frame on
+SimNet2.
 
 ### Section 3
+Now we send two consecutive frames from Alice to Bob. By sending them before
+expiring the @MAC table ageing timer, we can see taht the first one triggers
+the MAC Learning Protocol and the second one just resets the timer. Then, when
+we send the frame from Bobs machine, Bobs phisical @ gets listed on the table.
 
+This is the output after all the messages have been sent:
+
+```
+port no mac addr                is local?       ageing timer
+  1     fe:fd:00:00:01:00       no                10.29
+  3     fe:fd:00:00:02:00       no                 5.19
+  1     fe:fd:00:00:07:00       yes                0.00
+  2     fe:fd:00:00:07:01       yes                0.00
+  3     fe:fd:00:00:07:02       yes                0.00
+
+```
+
+From the prespective of Wireshark, we can see the same behaviour as on the
+previous section on the firts two messages: they get sent through all the
+interfaces so we can capture them on SimNet1 and SimNet2. This changes when Bob
+sends its reply. Due to the fact that the MAC learning protocol has learned
+where Alices frames come from, Bobs frames only get sent through SimNet2 (to
+prove that SimNet4 has been checked).
+
+![Image 2](./images/scrot_2.png)
+
+As it can be seen on Image 2, Alices package gets captured three times whereas
+Bobs only one.
+
+### Section 4
+Now we have two chats, so we now run teh same configuration as in the last
+section of exercice 2. It all starts with Bob saying hi to Alice. As shown on
+the nest picture, this message gets captured on SimNets 1 and 2 because L2 nor
+L1 know where Alices machine is hooked-up. 
+
+![Image 3](./images/scrot_3.png)
+
+Then Alice sends its response to Bob. As we can see, now the frame gets
+campured only on SimNet2 because Bobs MAC has been listed on L1 and L2 @MAC
+tables. The following image shows this behaviour:
+
+![Image 4](./images/scrot_4.png)
+
+Now it is Carlas turn. Its frame gets only captured on SimNet1. This happens because after arriving on L1 it gets only forwarded to Alice due to the fact that the
+previous comunication between Bob and Alice has registered Alices MAC on L1s
+table. 
+
+Alices response follows more or less the same pattern. It also only gets capured on SimNet1. L1 only sends the frame through `eth1` because it is where Carlas came from and L3 does the same. Here there is an screen capture of Wireshark at this point:
+
+![Image 5](./images/scrot_5.png)
+
+Now Bob asks Alice how does she do. This frames does not replicate the same
+bahaviour than the first one. Now L1 and L2 know where Alices and Bobs stations
+are so they only forward the package through the apropiate ports. From now on
+this will be the scenario.
+
+This las image shows all teh captured frames and the last frame information:
+
+![Image 6](./images/scrot_6.png)
+
+***Note:*** _This scenario can only be achieved by setting an ageing value high
+enough to ensure that the @MACs are not forgotten after the first message._
 
 ## Issues
 * On exercice number 2.1, errors with two servers, two clients with different
 	SAPs.
 * On exercice number 3.1, I can not determine who is the owner of the
-	unidentified @MACs
+	unidentified @MACs.
 
 
 ## Author
