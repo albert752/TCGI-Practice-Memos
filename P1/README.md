@@ -205,7 +205,7 @@ This las image shows all teh captured frames and the last frame information:
 enough to ensure that the @MACs are not forgotten after the first message._
 
 ## Exercice 4
-### Section 3
+### Section 1
 We used the following command to set-up both 10 and 20 VLANs. There was no need
 to use tags for this configuration:
 
