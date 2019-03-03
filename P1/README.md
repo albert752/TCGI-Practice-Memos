@@ -65,7 +65,8 @@ lose the hability to interface with the others.
 We could also specify diferent SAPs for each server but it wouldi yield
 problems that I don't know how to solve yet
 
-### Section 3
+## Exercice 2
+### Section 1
 First of all we run `brctl show` on L1 and we get this output:
 
 ```
@@ -78,6 +79,74 @@ As we can see the spanning tree protocol is not enabled (we don't have any loop
 topolgy so it is not needed). The interfaces `eth0`, `eth1` and `eth2` are
 assigned to the br1 as shown on the instructions diagram. The same happens with
 the other switches, L2 and L3.
+
+Then we run `brctl showmacs br1` on L1 to show the MAC discovery protocol @MAC
+table. We can see listed there all the learned @MAC. 
+```
+port no mac addr                is local?       ageing timer
+  1     1a:26:fe:bf:a2:df       no                31.88
+  2     42:d2:bc:27:3c:b9       no                33.29	
+  3     46:e2:a0:7e:e2:77       no                15.34
+  3     4a:3a:4d:ef:a0:f4       no                41.97
+  3     4e:54:43:63:23:68       no                21.49
+  2     4e:a8:e5:e4:b2:4e       no                32.72
+  2     86:9a:01:19:00:c7       no                25.58
+  2     fe:9a:be:b5:47:6f       no                37.87
+  1     fe:fd:00:00:07:00       yes                0.00
+  2     fe:fd:00:00:07:01       yes                0.00
+  3     fe:fd:00:00:07:02       yes                0.00
+
+```
+
+In this example output, we can see taht the fisrt parameter is the port number
+in witch the switch belives teh machine is connected. The next one is the
+phisical @ of the station. The `is local?` parameter refers to teh nature of
+the @MAC, if it is `yes` it means the the address belongs to a network card of
+the switch or to the bridge itself. We can determine whitch of those
+posibilities is by executing `ifconfig | grep HW`. The output is self
+explanatory:
+
+```
+br1       Link encap:Ethernet  HWaddr fe:fd:00:00:07:00  
+eth0      Link encap:Ethernet  HWaddr fe:fd:00:00:07:00  
+eth1      Link encap:Ethernet  HWaddr fe:fd:00:00:07:01  
+eth2      Link encap:Ethernet  HWaddr fe:fd:00:00:07:02  
+
+```
+The other entries of the table can not be identified and I can not figure out
+who is the owner. 
+
+The last parameter refers to the amount of time the @MAC has been listed. After
+a given number of seconds, they get removed.
+
+### Section 2
+After sending an LLC1 frame from Alice to Bob, we analized the @MAC table of
+L1. As it can be seen on the output, Alices @MAC has been listed on the exact
+port it is connected and ad not local. The ageing timer is also running. After
+60s, the address of Alice desapears.
+
+```
+port no mac addr                is local?       ageing timer
+  1     fe:fd:00:00:01:00       no                 7.29
+  1     fe:fd:00:00:07:00       yes                0.00
+  2     fe:fd:00:00:07:01       yes                0.00
+  3     fe:fd:00:00:07:02       yes                0.00
+
+```
+On the other hand, by analizing the captured frame in SimNet1 and SimNet2 we
+can see the frame traveling from Alices machine to Bobs. The frame structure is
+the same as in the ones captured on Exercise 1. It is worth mentioning that the
+time of capture between SimNet1 and SimNet2 is slightly different due to
+frame processing.
+
+### Section 3
+
+
+## Issues
+* On exercice number 2.1, errors with two servers, two clients with different
+	SAPs.
+* On exercice number 3.1, I can not determine who is the owner of the
+	unidentified @MACs
 
 
 ## Author
