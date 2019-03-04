@@ -315,6 +315,127 @@ captured on SimNet1 and SimNet2.
 
 ![Image 9](./images/scrot_9.png)
 
+### Section3
+For the requested scenario, we have to run the following command on L1:
+
+```
+root@L1:~# brctl addbr br1-10
+root@L1:~# brctl addif br1-10 eth0
+root@L1:~# brctl addif br1-10 eth1.10
+root@L1:~# vconfig add eth1 10
+Added VLAN with VID == 10 to IF -:eth1:-
+root@L1:~# vconfig add eth2 10
+Added VLAN with VID == 10 to IF -:eth2:-
+root@L1:~# brctl addif br1-10 eth1.10
+root@L1:~# brctl addif br1-10 eth2.10
+root@L1:~# ifconfig eth0 up
+root@L1:~# ifconfig eth1.10 up
+root@L1:~# ifconfig eth2.10 up
+root@L1:~# ifconfig eth1.20 up
+root@L1:~# ifconfig eth2.20 up
+
+root@L1:~# brctl addbr br1-20
+root@L1:~# vconfig add eth1 20
+Added VLAN with VID == 20 to IF -:eth1:-
+root@L1:~# vconfig add eth2 20
+Added VLAN with VID == 20 to IF -:eth2:-
+root@L1:~# brctl addif br1-20 eth1.20
+root@L1:~# brctl addif br1-20 eth2.20
+
+root@L1:~# ifconfig br1-10 10.0.0.11/24
+root@L1:~# ifconfig br1-20 10.0.0.12/24
+```
+
+To achieve this point:
+
+```
+root@L1:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br1-10          8000.fefd00000700       no              eth0
+                                                        eth1.10
+                                                        eth2.10
+br1-20          8000.fefd00000701       no              eth1.20
+                                                        eth2.20
+```
+
+And then on L2:
+
+```
+root@L2:~# brctl addbr br2-10
+root@L2:~# brctl addbr br2-20
+root@L2:~# vconfig add eth0 10
+Added VLAN with VID == 10 to IF -:eth0:-
+root@L2:~# vconfig add eth0 20
+Added VLAN with VID == 20 to IF -:eth0:-
+root@L2:~# brctl addif br2-10 eth1 eth0.10
+root@L2:~# brctl addif br2-20 eth2 eth0.20
+root@L2:~# ifconfig eth0.10 up
+root@L2:~# ifconfig eth0.20 up
+root@L2:~# ifconfig eth1 up
+root@L2:~# ifconfig eth2 up
+root@L2:~# ifconfig br2-10 10.0.0.21/24
+root@L2:~# ifconfig br2-20 10.0.0.22/24
+```
+
+And we achieve this point
+
+```
+root@L2:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br2-10          8000.fefd00000800       no              eth0.10
+                                                        eth1
+br2-20          8000.fefd00000800       no              eth0.20
+                                                        eth2
+```
+
+And finaly we configure L3:
+
+```
+root@L3:~# brctl addbr br3-10
+root@L3:~# brctl addbr br3-20
+root@L3:~# vconfig add eth0 10
+Added VLAN with VID == 10 to IF -:eth0:-
+root@L3:~# vconfig add eth0 20
+Added VLAN with VID == 20 to IF -:eth0:-
+root@L3:~# brctl addif br3-10 eth0.10
+root@L3:~# brctl addif br3-10 eth1
+root@L3:~# brctl addif br3-20 eth1.20
+interface eth1.20 does not exist!
+root@L3:~# brctl addif br3-20 eth0.20
+root@L3:~# brctl addif br3-20 eth2
+root@L3:~# brctl addif br3-20 eth3
+root@L3:~# ifconfig eth0.10 up
+root@L3:~# ifconfig eth0.20 up
+root@L3:~# ifconfig eth1 up
+root@L3:~# ifconfig eth2 up
+root@L3:~# ifconfig eth3 up
+root@L3:~# ifconfig br3-10 10.0.0.31/24
+root@L3:~# ifconfig br3-20 10.0.0.32/24
+```
+
+And we get this result:
+
+
+```
+root@L3:~# brctl show
+bridge name     bridge id               STP enabled     interfaces
+br3-10          8000.fefd00000900       no              eth0.10
+                                                        eth1
+br3-20          8000.fefd00000900       no              eth0.20
+                                                        eth2
+                                                        eth3
+```
+
+To test the configuration, we run Wireshark on all SimNets. By sending a
+broadcast frame from Carla, we only carture the package on SimNets 3, 1, 
+0, 5 and 2. These are the ones connected to the VLAN10.
+
+![Image 10](./images/scrot_10.png)
+
+SimNet1 and SimNet2 are trunks so they will also capture VLAN20 frames. Now we 
+broadcast from Frank to VLAN 20. The frame gets captured on SimNets 1, 2, 4, 6 and 7. 
+
+![Image 11](./images/scrot_11.png)
 
 ## Issues
 * On exercice number 2.1, errors with two servers, two clients with different
