@@ -256,14 +256,14 @@ the default gateways.
 The apropiate net masks would be `255.255.255.0` which is equivalent to `\24`
 and `\28`.
 
-### Section 2
+### Section 2 to 5
 The procedure is the same as always. Here there's a screencapture of wireshark
 on SimNets 1, 2 and 3:
 
 ![Image_6](./images/scrot_6.png)
 
 
-### Section 3
+### Section 6
 By running the given commands, we get this outputs:
 
 This first command, it just works!
@@ -300,4 +300,35 @@ host1:~# ping -c1 -r 10.0.0.3 192.168.2.254
 PING 192.168.2.254 (192.168.2.254) 56(124) bytes of data.
 ping: sendmsg: Network is unreachable
 ```
-### 
+### Section 7
+The ping is succesfuly received by the web server. This machine does not repond
+because the source @IP is not from the "public" domain so it does not even
+generate the ICMP frame.
+
+### Section 8
+We now enable NAT on router4 as it followa:
+
+```
+r4# iptables -t nat -F
+r4# iptables -t nat -A POSTROUTING -s 192.168.0.254 -o eth2 -j SNAT --to-source 203.0.113.5
+r4# ifconfig eth2:0 203.0.113.5/24
+```
+
+In this order: clear the NAT table, add the required entry and enable the
+forwarding.
+
+Now both ping and `lynx http://203.0.113.200` command work. It is worth
+mentioning that `lynx` is a terminal based web browser.
+
+## Exercise 6
+### Sections 1 and 2
+It will spin couter-clockwise.
+
+### Section 3
+![Image_7](./images/scrot_7.png)
+
+As it can be seen on the imatge, the ping request and reply follow the
+forecasted path.
+
+
+
