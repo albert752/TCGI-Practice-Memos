@@ -206,9 +206,26 @@ The steps are the following:
 We can now check if it is workig by running `nc 127.0.0.1 22233`. To debug, run ` tail -f /var/log/daemon.log`
 
 ## Exercice 5
+To start the we server we run `virt1.0# /etc/init.d/apache2 start 2>
+/dev/null`. Now we check if it is included on `inetd` configuration file, and
+it's not. To find out the proces id, we first run `netstat -lntp` and `grep`
+for 80 port. We find that the `PID` is 808 and it is not linked to `inetd` as
+expected. After editing the contents of `/var/www/index.html`, the `lynx` command woks as expected.
 
+Now we capture the frames form `virt1` to the `phyhost`. Here there is the
+result:
+
+![Image4](./images/img4.png)
+
+* First there is a `SYN` fraem sent from teh physical host with a `SYN`
+	response form `virt1` followed by an `ACK` from the first host. The
+	connection is now stablished.
+* Now the phisical host sends an HTTP get request and the `virt1` responds with
+	an `ACK` and the HTTP response.
+
+## Exercice 6
 
 ## Issues
-* **E1:** On windows running on the same port.
+* **E1:** Is, on windows, running on the same port?
 * ~~**E2S1:** Why ftp is not listed?~~ Use `netstat -tnlp`.
-* **E3S1:** More info? Also on S2.
+* **E3S1:** Do I have to give more info? Also on S2.
