@@ -2,6 +2,7 @@
 To include in cheatsheet
 * netcat command information
 * Where config files are
+* Exercice 4
 -->
 
 # Practice 1 memo of TCGI
@@ -167,9 +168,47 @@ and the conversation as a whole or filtered by user.
 ![Image1](./images/img1.png)
 
 ### Section 2
+To set up the required scenario, we run `cat /etc/services | nc -l -p 23456 -q0` on `virt1`. 
+To retrieve the file on `virt2` we run `nc 10.1.1.1 23456 > file.txt`. Now we
+analyze the captured packets using `follow TCP Stream`:
+
+![Image2](./images/img2.png)
+
+As it can be seen, the information is sent in plan text in multiple frames of
+maximum lenght of 1514 bytes. The codification is `ANSI`. 
+
+### Section 3
+Now we set up the `UDP` adding the `-u` flag to the before mentioned commands.
+As it can be seen on the following image is:
+* Now by using `UDP` no `ACK` are sent.
+* The `UDP` protocol uses the maximum bandwith all the time.
+* There is an issue at the end, probably due to the client trying to reache the
+	server while closed.
+
+### Section 4
+In orfer to set up the descrived scenario on the physical host, we run on one
+terminal `date | nc -l -p 12345` and in another one `nc 127.0.0.1 12345`.
+
+In order to capture the traffic, we sniff at the `loopback` interface. The date
+is correcte due to the fact the my physical host has been set up correctly.
+
+### Section 5
+By running a similar command with `df -h` the service works as expected.
+
+## Exercice 4
+The steps are the following:
+* First create the script and give it executions permision
+* Then edit `/etc/inetd.conf` to add the line `space stream tcp nowait root
+	/root/space.sh`
+* We assign the `22233` port to the service by editing `/etc/services`
+* Now we manualy restart the deamon.
+
+We can now check if it is workig by running `nc 127.0.0.1 22233`. To debug, run ` tail -f /var/log/daemon.log`
+
+## Exercice 5
 
 
 ## Issues
 * **E1:** On windows running on the same port.
 * ~~**E2S1:** Why ftp is not listed?~~ Use `netstat -tnlp`.
-* **E3S1:** More info?
+* **E3S1:** More info? Also on S2.
