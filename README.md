@@ -6,7 +6,7 @@ Here you'll find a link to all the memos:
 
 * [Practice 1](./P1/README.md)
 * [Practice 2](./P2/README.m)
-* Practice 3 (TBD)
+* [Practice 3](./P3/README.m)
 * Practice 4 (TBD)
 
 More entries will be added as soon as I reach them!
@@ -19,5 +19,5 @@ More entries will be added as soon as I reach them!
 ## License
 
 This project is licensed under the MIT License - see the
-[LICENSE.md](../LICENSE.md) file for details
+[LICENSE.md](./LICENSE.md) file for details
 
