@@ -224,6 +224,24 @@ result:
 	an `ACK` and the HTTP response.
 
 ## Exercice 6
+Now we try to `TELNET` the `virt2` form `virt2`. It does not work, yielding
+this output:
+
+```
+root@virt1:~# telnet 10.1.1.2
+Trying 10.1.1.2...
+Connected to 10.1.1.2.
+Escape character is '^]'.
+Debian GNU/Linux 6.0
+virt2 login: root
+
+Login incorrect
+```
+
+This is because root can no be used remotely for security reasons. To enable
+it, we edited `/etc/securetty` the `pts/(1 and 0)` lines. We also have to edit
+`/etc/inetd.conf` file and uncoment the TELNET. Now the connection can
+be stablished.
 
 ## Issues
 * **E1:** Is, on windows, running on the same port?
