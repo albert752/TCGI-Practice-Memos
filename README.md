@@ -1,5 +1,5 @@
 # TCGI-Practice-Memos
-Here you will finds all my memos for the different practices of UPCs TCGI course
+Here you will finds all my memos for the different practices of UPCs TCGI course. Do not hesitate to open issues with your doubts.
 
 ## Index
 Here you'll find a link to all the memos:
