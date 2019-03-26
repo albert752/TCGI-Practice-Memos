@@ -4,9 +4,9 @@ Here you will finds all my memos for the different practices of UPCs TCGI course
 ## Index
 Here you'll find a link to all the memos:
 
-* [Practice 1](./P1/README.md)
-* [Practice 2](./P2/README.m)
-* [Practice 3](./P3/README.m)
+* [Practice 1](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P1)
+* [Practice 2](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P2)
+* [Practice 3](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P3)
 * Practice 4 (TBD)
 
 More entries will be added as soon as I reach them!
