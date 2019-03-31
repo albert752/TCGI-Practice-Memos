@@ -536,3 +536,5 @@ server.
 * **E1:** Is the mail server OK?
 * **E2:** Why we do not get the additional section with the glue record on the
 	first dig?
+* **General** Why when we dig on Bob we don't get addition information
+	containing the `A` RR and on the last exercice, when we dig on Carla we do.
