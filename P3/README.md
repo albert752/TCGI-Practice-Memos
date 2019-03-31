@@ -7,7 +7,7 @@ To include in cheatsheet
 * FTP usage
 -->
 
-# Practice 1 memo of TCGI
+# Practice 3 memo of TCGI
 
 ## Exercice 1
 By running `cat /etc/services | grep daytime` we get a similar output to this

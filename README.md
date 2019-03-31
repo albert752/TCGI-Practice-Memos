@@ -7,7 +7,9 @@ Here you'll find a link to all the memos:
 * [Practice 1](./P1/README.md)
 * [Practice 2](./P2/README.m)
 * [Practice 3](./P3/README.m)
-* Practice 4 (TBD)
+* [Practice 4](./P4/README.m)
+* Practice 5 (TBD)
+* Practice 6 (TBD)
 
 More entries will be added as soon as I reach them!
 
