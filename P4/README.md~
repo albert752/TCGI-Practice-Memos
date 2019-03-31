@@ -490,46 +490,6 @@ right  IN  NS  nsner
 nsner  IN  A  10.0.0.131
 ```
 
-And by trying to ping every machine from Alice we can see that it works. Here
-we can see the captured packets for a `dig` on Carla:
-
-![Image5](./images/img5.png)
-
-## Exercice 4
-After commenting all the entries form Carla's and Alice's `resolv.conf` files,
-when we `dig` from Alice to Carla we get this packets captured and this output:
-
-```
-; <<>> DiG 9.6-ESV-R4 <<>> carla.right.example.net
-;; global options: +cmd
-;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 15310
-;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1
-
-;; QUESTION SECTION:
-;carla.right.example.net.       IN      A
-
-;; ANSWER SECTION:
-carla.right.example.net. 60000  IN      A       10.0.0.132
-
-;; AUTHORITY SECTION:
-right.example.net.      60000   IN      NS      nsner.right.example.net.
-
-;; ADDITIONAL SECTION:
-nsner.right.example.net. 60000  IN      A       10.0.0.131
-
-;; Query time: 21 msec
-;; SERVER: 10.0.0.201#53(10.0.0.201)
-;; WHEN: Sun Mar 31 19:39:55 2019
-;; MSG SIZE  rcvd: 93
-
-```
-
-![Image6](./images/img6.png)
-
-As it can be seen it all works as expected, we use joker as our recursive
-server.
-
 ## Issues
 * **E1:** What is the entry on Alice: `search example.com`?
 * **E1:** What would happen if I don't set up the `$ORIGIN` variable?
