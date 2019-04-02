@@ -125,6 +125,89 @@ GIF89a <REST OF THE IMAGE>
 After editing the file we can now see the UPC logo. 
 
 We repeat the process to retrieve using `HTTP1.1` but now we have to specify
-the host. If we specify `Connection: close ` it will close the connection
+the host as `Host: www.example.com`. If we specify `Connection: close ` it will close the connection
+
+Now we will retrieve the file with `wget`. This command simply creates a get
+request to the server in `HTTP/1.1` with the flags `Host` and `Connection:
+Keep-alive` so the TCP connection will not be retminated after the transfer.
+
+
+### Server Set-up
+To set up the web server on the `server` host, we run:
+```
+server:/var/www# /etc/init.d/apache2 start
+Starting web server: apache2.
+server:/var/www# cat index.html 
+<html><body><h1>It works!</h1>
+<img src="www.example.com/images/upc1.gif"></img>
+<img src="www.example.com/images/upc2.gif"></img>
+<img src="www.example.com/images/upc3.png"></img>
+</body></html>
+```
+And we stop the apache server from `www`
+
+When we request the wepage of the `server` from the `phyhost` we get the html
+file with all the image hyperlinks broken. The src is specified with a FQDN
+whitch cannont be resolved by the machine due to the DNS. And even if we could,
+we have just `stoped` the apache server from `www`.
+
+![Image7](./images/img7.png)
+
+Now from `host` we try to acces the server webpage. Because we are using
+`lynx`, we are only requestig the text files, thus we only get the
+`index.html`. To resolve the DNS, it does the standard procedure explained on
+the first exercice.
+
+If we now start the server again on `www` and we try tro retrieve the wepage
+from the physical host, we get the same output as before due to the `DNS`
+configuration. We cannot acces to webpage even by editing hosts.
+
+## Exercise 3
+### Bash script
+To set up cgi on the server machine, we have to create the forder `cgi-bin`.
+There we create a small script the echoes hello and we give it execution
+permisions. We now run:
+
+```
+a2ensite default
+/etc/init.d/apache2 restart
+```
+To reload the apache configuration. We also have to edit the file
+`/etc/apache2/sites-enabled/000-default` and then we change the line that says
+`ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/` to `ScriptAlias /cgi-bin/
+/var/www/cgi-bin/` now we restart again the apache server and when we exacute
+`lynx` on the host, we can retrive the date by going to
+`www.example.com/cgi-bin/hello.sh`
+
+### C code
+We follow the same procedure to configure the C file. We do have to compile it.
+To query the server we use the command `NOT WORKING`.
+
+## Exercise 4
+We edit the `db.example.net` file in order to add the 10.1.1.1 IP. We then run:
+
+```
+www# cd /etc/apache2/sites-available/j
+www# cp default www.example.com
+www# cp default www.example.net
+```
+
+And then we edit the file to acomodate it to our needs. Then we enable both
+sites by running `a2ensite www.example.com/net`. We also have to create the
+docoment root directories and write a unique index file for each one.
+
+Now, when we run lynx to `ẁww.example.com` we get the new webpage.
+When we browse using the IP we get the old default webpage. This is due to the fact tht the `default` webservice has not been disabled. On
+the other hand, for the `.net` domain, we recieve the new `index.html` file.
+Even thow we run the comands quickly enough to be able to use the `DNS` cache,
+we can see that it performs two full queries. We see this behaviour because
+the domain names are different, thus it needs to be again resolved.
+
+![Image8](./images/img8.png)
+
+After setting up the `DNS` and the web server on the `server` machine, we can
+see that now the `DNS` acts like a load balancer.
+
 ## Issues
-* **E1:** Does teh server has a buffer for each TCP message?
+* **E1:** Does the server has a buffer for each TCP message?
+* **E3.2:** How to query the server. It is returning remote PID
