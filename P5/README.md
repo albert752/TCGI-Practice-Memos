@@ -68,7 +68,7 @@ machine, she does not have any `@IP`
 
 ## Exercise 4
 Now with manual allocation, we can see taht Alice is getting the `@IP`
-configurd in the `DNS`. There is no `DNS` resolution of the name, I suspect it
-has been store on Joker's machine but I don't know where. The is still a lease
+configurd in the `DNS`. There is a `DNS` resolution of the name prior to the
+`DHCP-IFFER`. The is still a lease
 time because no other specific parameter has been setup on the `DHCP` only for
 Alice.
