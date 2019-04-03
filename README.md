@@ -17,6 +17,7 @@ More entries will be added as soon as I reach them!
 ## Author
 
 * **Albert Azemar i Rovira** - *Initial work* -
+	[albert752](https://github.com/albert752)
 
 ## License
 
