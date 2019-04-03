@@ -15,8 +15,6 @@ After setting up the `DHCP` server on Joker's machine, we can now try to run
 the client on Alice by typing `dhclient3 eth1`. After capturing almost two
 minutes of traffic, this are the results:
 
-![Image1](./images/img1.png)
-
 * It all begins with a `DHCP-DISCOVER` from Alice's machine to broadcast. Then,
 	Joker, checks if the `@IP` that wants to assign to Alice is in use by doing
 	an ARP request. 
@@ -61,7 +59,6 @@ lease {
 After having executed the client in Alice for a while, we executed `dhclient -r
 eth1` whitch will trigger an `@IP` release. And it sure does:
 
-![Image2](./images/img2.png)
 
 We can see that Alice specifies her old `@IP`. An now, if we run `ip a` on her
 machine, she does not have any `@IP`

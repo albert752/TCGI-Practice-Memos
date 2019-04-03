@@ -4,8 +4,6 @@ We fisrt try to connect to `www.example.com` and we get an error. The @IP
 associated with the host is the `10.1.1.1`. If we analyze the capture packets
 we can see the TCP error:
 
-![Image1](./images/img1.png)
-
 As it can also be seen on the capture, it tries to get the `AAAA` rocord for
 the host but it is not existent so it then requests the `A` record. We can also
 see that the first DNS request times out and it gets repeted. The TCP error is
@@ -26,7 +24,6 @@ User-Agent: Lynx/2.8.7dev.9 libwww-FM/2.14 SSL-MM/1.4.1
 Now the connection is open, when we close the client or the sever it gets
 closed.
 
-![Image2](./images/img2.png)
 
 We can see the same DNS resolution battern but now the TCP connection is
 stablished. We can now see the HTTP GET request from the host and the ACK from
@@ -36,7 +33,6 @@ Now, if we start the `apache2` daemon on the server, we can see taht the netcat
 works and stablished the TCP connection on port 80. But now we can see some TCP
 errors:
 
-![Image3](./images/img3.png)
 
 If we query the server with lynx, it works without the TCP errors.
 
@@ -93,13 +89,11 @@ reload the webpage we get a `not modified` response for each `GET` request. If
 we further examnine the `GET` headers, we can see the `If-modified since` and
 `If-not matched` containing the ETag fields:
 
-![Image5](./images/img5.png)
 
 Without changing the parametes on firefox, we see that we have 2 TCP open
 connections (top image), after changing the parameter to 1, we can only see one
 connection:
 
-![Image7](./images/img7.png)
 
 After changing the firefox parameter to 1, we can only see 1 TCP connection.
 
@@ -151,7 +145,6 @@ file with all the image hyperlinks broken. The src is specified with a FQDN
 whitch cannont be resolved by the machine due to the DNS. And even if we could,
 we have just `stoped` the apache server from `www`.
 
-![Image7](./images/img7.png)
 
 Now from `host` we try to acces the server webpage. Because we are using
 `lynx`, we are only requestig the text files, thus we only get the
@@ -203,7 +196,6 @@ Even thow we run the comands quickly enough to be able to use the `DNS` cache,
 we can see that it performs two full queries. We see this behaviour because
 the domain names are different, thus it needs to be again resolved.
 
-![Image8](./images/img8.png)
 
 After setting up the `DNS` and the web server on the `server` machine, we can
 see that now the `DNS` acts like a load balancer.
