@@ -126,5 +126,146 @@ After closing the server:
 2. The added entry has now been removed.
 
 ### 0.6.4 upd-receiver
+Now we set up the receiver. By running:
+```
+R2:~# cat /proc/net/igmp
+Idx     Device    : Count Querier       Group    Users Timer    Reporter
+1       lo        :     1      V3
+                                010000E0     1 0:00000000               0
+5       eth2      :     1      V3
+                                010000E0     1 0:00000000               0
+6       eth1      :     1      V3
+                                010000E0     1 0:00000000               0
+```
+1. We can see that both eth interfaces and the loopback have joined the group.
 
+In order to receive the video we execute `R2# udp-receiver --file=big_664.mpg --mcast-all-addr 225.1.2.3 --ttl 1 --portbase 22345`.
+
+1. We do not see any packages on SimNet2 but two UDP and two IGMPv3 in SimNet3.
+2. We do not see them on SimNet3 because R2 has not been set up to fw multicast
+   traffic through eth1.
+1. The UDP datagrams have Src: 198.51.100.2, Dst: 225.1.2.3 and a TTL of 1.
+2. The port numbers are Src Port: 22345, Dst Port: 22346. These correspond with
+   the ones specified on the command.
+3. We can see two other IGMPv3 Menbership Report Join packets from the control
+   group.
+
+* The objective of the UDP frames is to contact the server.
+* There is no reponse for the IGMPv3 frames.
+
+If we run:
+```
+R2:~# cat /proc/net/igmp
+Idx     Device    : Count Querier       Group    Users Timer    Reporter
+1       lo        :     1      V3
+                                010000E0     1 0:00000000               0
+5       eth2      :     2      V3
+                                030201E1     1 0:00000000               0
+                                010000E0     1 0:00000000               0
+6       eth1      :     1      V3
+                                010000E0     1 0:00000000               0
+```
+
+1. We can see that a new entry has been added for the control group to eth2.
+
+After closin the receiver:
+
+1. We can see two new IGMP Report Messages of type leave.
+2. The before created entry has been removed.
+
+### 0.6.5 Sending the video file in the subnet
+After setting up the transmitter and the receiver:
+1. The trasmission was completed succesfuly.
+2. We can see 12514 frames on wireshark.
+
+If we focus on the four initial UDP packets of short-length.
+1. The purpose of this frmes is to stablish the connection betweem the server
+   and the client.
+2. The destination addr of the first UDP frame is the control multicast IP
+3. If we convert 232.43.211.234 to hex we get e8.2b.d3.ea (0xe82bd3ea). We can
+   see that this IP has bee transmutted inside the data field.
+4. The client R2 was not listenning to the multicast IP.
+5. The purpose is to discover any servers.
+6. Before sending the frames, R2 only knows the control multicast IP.
+7. It ias an unicast package anouncing the data IP addr tha will be used for
+   the transmission. We recognize the data transmission multicast IP.
+
+ If we take a look to the data frames:
+ 1. The destinantion @IP os this frames is the data m/c IP.
+ 2. The size of the vast majority is 1514, the full MTU.
+ 3. The unicast frames can be ACK or control frames from the app.
+
+## 0.7 Multicast and routing
+### 0.7.1 Configuring GRE tunnels
+After creating the tunnels with the script, we run a ping from the server to
+the host2 and to the host4.
+
+1. Both pings are working.
+2. We can see the ICMP paquets on wireshark. They use an outer IP header with
+   IPs of the router within the tunnel, an intermidiate GRE header and an
+   innner IP header with the private addresses of teh hosts.
+4. The size of the GRE header is 4 bytes.
+
+### 0.7.3 Multicast static routing: smcroute
+If we take alook to the file `/proc/net/ip_mr_vif` we can see that is empty.
+The we start the `smcroute` daemon on R2 and we can now see:
+```
+R2:~# cat /proc/net/ip_mr_vif
+Interface      BytesIn  PktsIn  BytesOut PktsOut Flags Local    Remote
+ 0 eth2              0       0         0       0 00000 026433C6 00000000
+ 1 eth1              0       0         0       0 00000 010110AC 00000000
+ 2 tunnel0           0       0         0       0 00000 016EA8C0 00000000
+ 3 tunnel1           0       0         0       0 00000 026EA8C0 00000000
+R2:~#
+```
+This is a list of all the ifaces that support multicast and some statistics. We
+now add a new route to R2 by running `R2:~# smcroute -a eth1 0.0.0.0 232.43.211.234 tunnel0`. So now any frame entering through eth1 with any origin address and destination address
+the multicast group 232.43.211.234 will be routed through the tunnel0. Now we
+execute `smcroute -j eth1 232.43.211.234` to make R2 to join the iface eth1 to
+the multicast group `232.43.211.234`:
+
+```
+Idx     Device    : Count Querier       Group    Users Timer    Reporter
+1       lo        :     1      V3
+                                010000E0     1 0:00000000               0
+5       eth2      :     1      V3
+                                010000E0     1 0:00000000               0
+6       eth1      :     2      V3
+                                EAD32BE8     1 0:00000000               0
+                                010000E0     1 0:00000000               0
+7       tunnel0   :     1      V3
+                                010000E0     1 0:00000000               0
+8       tunnel1   :     1      V3
+                                010000E0     1 0:00000000               0
+```
+1. The iface has been set up correctly to the desire @IP.
+2. We can see two IGMP join frames from eth1 to the multicast 224.0.0.22.
+
+If we now send a ping to the multicast grop with a scope of three hops(`ping -t3
+-c1 232.43.211.234`) form the server:
+1. The ping is working. We can see ICMP packets on SimNets 1, 2 and 3
+2. We can see GRE encapsualtion on both SimNets 1 and 2 with a GRE header size
+   of 4bytes.
+   ```
+   R2:~# cat /proc/net/ip_mr_vif
+Interface      BytesIn  PktsIn  BytesOut PktsOut Flags Local    Remote
+ 0 eth2              0       0         0       0 00000 026433C6 00000000
+ 1 eth1            588       7         0       0 00000 010110AC 00000000
+ 2 tunnel0           0       0       588       7 00000 016EA8C0 00000000
+ 3 tunnel1           0       0         0       0 00000 026EA8C0 00000000
+
+   ```
+3. After sending several pings, the sattistics have changed.
+4. After executing `ip mroute show` we can see:
+```
+R2:~# ip mroute show
+(172.16.1.3, 232.43.211.234)     Iif: eth1       Oifs: tunnel0
+```
+	* It shows the src @IP of the m/c ping messages and the m/c IP itself.
+	* It also presents the Input interface and the output one.
+	* It represents the rout we configured before.
+5. R1 is not forwarding the packet because it has not been yet configured as a
+   multicast router.
+* Its is also worth mentionin that R2 has been configured as an uniderctional
+	static mmulticast route.
 
