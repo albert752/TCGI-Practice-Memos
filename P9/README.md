@@ -246,21 +246,26 @@ If we now send a ping to the multicast grop with a scope of three hops(`ping -t3
 1. The ping is working. We can see ICMP packets on SimNets 1, 2 and 3
 2. We can see GRE encapsualtion on both SimNets 1 and 2 with a GRE header size
    of 4bytes.
-   ```
-   R2:~# cat /proc/net/ip_mr_vif
+
+```
+R2:~# cat /proc/net/ip_mr_vif
 Interface      BytesIn  PktsIn  BytesOut PktsOut Flags Local    Remote
  0 eth2              0       0         0       0 00000 026433C6 00000000
  1 eth1            588       7         0       0 00000 010110AC 00000000
  2 tunnel0           0       0       588       7 00000 016EA8C0 00000000
  3 tunnel1           0       0         0       0 00000 026EA8C0 00000000
 
-   ```
+```
+
 3. After sending several pings, the sattistics have changed.
 4. After executing `ip mroute show` we can see:
+
 ```
 R2:~# ip mroute show
 (172.16.1.3, 232.43.211.234)     Iif: eth1       Oifs: tunnel0
+
 ```
+
 	* It shows the src @IP of the m/c ping messages and the m/c IP itself.
 	* It also presents the Input interface and the output one.
 	* It represents the rout we configured before.
