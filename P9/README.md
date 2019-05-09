@@ -1,4 +1,4 @@
-#Practice 9 Memo of TCGI
+# Practice 9 Memo of TCGI
 ## 0.5 MAC multicast addresses
 After running on the server `ping -c1 224.0.0.1` we capture the traffic on
 SimNet3. The results where the following:
