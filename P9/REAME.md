@@ -1,4 +1,4 @@
-# Practice 9 Memo of TCGI
+#Practice 9 Memo of TCGI
 ## 0.5 MAC multicast addresses
 After running on the server `ping -c1 224.0.0.1` we capture the traffic on
 SimNet3. The results where the following:
@@ -14,7 +14,7 @@ SimNet3. The results where the following:
 5. We can see the direct mapping of the @IP on the @MAC. 
 	* The first byte indicates multicast
 	* The second and third are fixed and belog also to multicast
-	* The fourth one begins with a 0 and if we add the 7 lsb of the seconf byte
+	* The fourth one begins with a 0 and if we add the 7 lsb of the second  byte
 		of the IP results to all 0.
 	* From the fifth to the seventh, they match the IP fields.
 
@@ -65,15 +65,66 @@ If we reverse the @IP in hex `010000E0` and turn it into bynary, we'll see
 
 ### 0.6.3 udp-sender
 To set up the video server, we execute on the server machine:
-```udp-sender --file=./big_664.mpg --min-clients 1 --portbase 22345 
+```
+udp-sender --file=./big_664.mpg --min-clients 1 --portbase 22345 
 --nopointopoint --interface eth1 --ttl 1 --mcast-addr 232.43.211.234 
---mcast-all-addr 225.1.2.3```
+--mcast-all-addr 225.1.2.3
+
+```
 
 * `--file`: The realive path to the file.
 * `--min-clients`: Automatically start as soon as a minimal number of clients have
            connected.
-* `--portbase`: The app port
+* `--portbase`: The app port starting point.
 *  `--nopointopoint`: Don't use point-to-point, even if there is only one single
            receiver.
+* `--mcast-all-addr`: Uses a non-standard multicast address for the control connection
+           (which is used by the sender and receivers to "find" each other).
+           This is not the address that is used to transfer the data.
+* `--mcast-addr`: Uses the given address for multicasting the data. If not specified,
+           the program will automatically derive a multicast address from its
+           own IP (by keeping the last 27 bits of the IP and then prepending
+           232).
+
 The other parameters are self explanatory.
+
+After running the command these are the results:
+1. We can only see one UDP packet and two IGMPv3 packets.
+2. In the UDP packet:
+	* Internet Protocol Version 4, Src: 172.16.1.3, Dst: 225.1.2.3
+	* TTL=1
+3. The port numbers Src Port: 22346, Dst Port: 22345. It complies with the
+   goven command.
+4. The two IGMPv3 packets are the same (redundacy) and they are 0x22 type so
+   Membership report. The @IP are Src: 172.16.1.3, Dst: 224.0.0.22. Due to the fact that
+   we are using v3 of this protocol, all `Menbership Reports/Join group` are sent to this
+   specific @IP with TTL=1 (as specified by the app) and payload the multicast 
+   addr of the grup the host is willing to join.
+* It is also worth mentioning that those IGMP mesages get no response because
+	there is not a m/c capable router
+
+Now if we check the other console:
+```
+Every 1.0s: cat /proc/net/igmp                          Thu May  9 13:15:37 2019
+
+Idx     Device    : Count Querier       Group    Users Timer    Reporter
+1       lo        :     1      V3
+                                010000E0     1 0:00000000               0
+5       eth1      :     2      V3
+                                030201E1     1 0:00000000               0
+                                010000E0     1 0:00000000               0
+
+```
+
+1. We can see that now the iface eth1 has another entry for another group. 
+2. The new entry stands for the @IP 225.1.2.3 which is the specified @IP to
+   send all the control data.
+
+After closing the server:
+1. We can see two unanswered `Memebership Report/leave group` containing the
+   @IP of the previosly mentioned control group.
+2. The added entry has now been removed.
+
+### 0.6.4 upd-receiver
+
 

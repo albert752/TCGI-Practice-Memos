@@ -12,6 +12,8 @@ but not listed here, check the folders above**:
 * [Practice 5](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P5)
 * [Practice 6](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P6)
 * [Practice 7](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P7)
+* [Practice 8](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P8)
+* [Practice 9](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P9)
 
 More entries will be added as soon as I reach them!
 
