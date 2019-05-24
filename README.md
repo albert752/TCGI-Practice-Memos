@@ -2,8 +2,7 @@
 Here you will finds all my memos for the different practices of UPCs TCGI course. Do not hesitate to open issues with your doubts.
 
 ## Index
-Here you'll find a link to all the memos, **some practices may have been done
-but not listed here, check the folders above**:
+Here you'll find a link to all the memos:
 
 * [Practice 1](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P1)
 * [Practice 2](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P2)
@@ -14,8 +13,10 @@ but not listed here, check the folders above**:
 * [Practice 7](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P7)
 * [Practice 8](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P8)
 * [Practice 9](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P9)
+* [Practice	10](https://github.com/albert752/TCGI-Practice-Memos/tree/master/P10)
 
-More entries will be added as soon as I reach them!
+## Disclaimer
+You may find some error or typos, if you do please report them.
 
 ## Author
 
