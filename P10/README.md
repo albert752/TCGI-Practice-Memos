@@ -231,9 +231,85 @@ C(i) 192.168.5.0/24     0.0.0.0               1 self              0
 		this network.
 
 14. Both routers have routes set outside the scope of RIP. When we run
-	`redistribute connected`
+	`redistribute connected`.
+	**Before runing the command**
+	```
+	r222# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+R>* 192.168.0.0/24 [120/2] via 192.168.5.3, eth2, 00:02:03
+C>* 192.168.0.128/25 is directly connected, eth3
+R>* 192.168.1.0/24 [120/2] via 192.168.5.3, eth2, 00:02:03
+R>* 192.168.2.0/24 [120/2] via 192.168.3.1, eth1, 00:22:42
+C>* 192.168.3.0/24 is directly connected, eth1
+R>* 192.168.4.0/24 [120/2] via 192.168.3.1, eth1, 00:22:42
+C>* 192.168.5.0/24 is directly connected, eth2
+
+	```
+	```
+	r1# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.16.0.0/16 is directly connected, eth1
+R>* 192.168.0.0/24 [120/2] via 192.168.2.3, eth2, 00:03:06
+R>* 192.168.1.0/24 [120/2] via 192.168.2.3, eth2, 00:03:06
+C>* 192.168.2.0/24 is directly connected, eth2
+C>* 192.168.3.0/24 is directly connected, eth3
+C>* 192.168.4.0/24 is directly connected, eth4
+R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:23:44
+
+	```
+	**After running the commmand**
+	```
+	r222# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+R>* 172.16.0.0/16 [120/2] via 192.168.3.1, eth1, 00:03:21
+R>* 192.168.0.0/24 [120/2] via 192.168.5.3, eth2, 00:07:15
+C>* 192.168.0.128/25 is directly connected, eth3
+R>* 192.168.1.0/24 [120/2] via 192.168.5.3, eth2, 00:07:15
+R>* 192.168.2.0/24 [120/2] via 192.168.3.1, eth1, 00:27:54
+C>* 192.168.3.0/24 is directly connected, eth1
+R>* 192.168.4.0/24 [120/2] via 192.168.3.1, eth1, 00:27:54
+C>* 192.168.5.0/24 is directly connected, eth2
+	```
+	```
+	<r1# show ip route  
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.16.0.0/16 is directly connected, eth1
+R>* 192.168.0.0/24 [120/2] via 192.168.2.3, eth2, 00:08:29
+R>* 192.168.1.0/24 [120/2] via 192.168.2.3, eth2, 00:08:29
+C>* 192.168.2.0/24 is directly connected, eth2
+C>* 192.168.3.0/24 is directly connected, eth3
+C>* 192.168.4.0/24 is directly connected, eth4
+R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:29:07
+	```
+	* We can see taht the 172.16.0.0/16 network gets distributed whereas the
+		192.16.0.128/28 does not because it is not a classfull net.
+	* There are no diferences in the entries.
+
+15. Now that r222 has the route, the ping works. RIPv1 is a classfull protocol
+	hence it will only distribute classful @IP.
+16. The ping form h223 to h11 does not work. The request reaches the host and
+	it generates a response. This response can not be routed by r1.
+	* On SimNet7 we can see some ARP messages from r3 reqeusting the @MACof
+		h223.
+	The request goes from h223 to h11 through SimNet3. 
+	The response goes from h11 to r1 who routes it to r3 due to the entry
+	192.168.0.0/24. R3 tries to reach the host on network 0 (because it fits
+	the mask) and generates an ICMP network unreachable that get fw to SimNet4.
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
 	(RIPv1-9)
+* 192.16.0.128/28 does not because it is not a classfull net? (RIPv1-14)
 
