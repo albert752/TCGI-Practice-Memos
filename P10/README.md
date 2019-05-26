@@ -311,8 +311,8 @@ R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:29:07
 ### Exercice 2
 1. After setting up teh scenario, we can ping h11 from h223. We can see that it
    succeds. If we check the RIB table of r3:
-   ```
-   r3# show ip route
+```
+r3# show ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
        I - ISIS, B - BGP, > - selected route, * - FIB route
 
@@ -325,7 +325,8 @@ C>* 192.168.2.0/24 is directly connected, eth2
 R>* 192.168.3.0/24 [120/2] via 192.168.2.1, eth2, 00:04:45
 R>* 192.168.4.0/24 [120/2] via 192.168.2.1, eth2, 00:04:45
 C>* 192.168.5.0/24 is directly connected, eth1
-   ```
+```
+.
 	* We can see entries for all the networks, including the ones that are not
 		classfull.
 	* We can see entries fro all nets on the rip messages.
