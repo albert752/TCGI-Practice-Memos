@@ -552,9 +552,104 @@ Once done, we can see that on SimNet0:
 8. To stop the OSPF in r2 we run `no router ospf`. We can see that, after some
    LSUpdates, the new DR is r1 and the BDR is r4 as expected.
  
-9. 
+9. After adding the subnet to r3, we can see an LSUpdate to m/c 6 of LSA type 1
+   that gets fw br the DR r1 to the m/c 5. Then r3 generates the apropiate
+   LSUpdate with an LSA type 3 summary with the subnet 10.0.1.0/24. This
+   message gets fw also by the DR with the same m/c addr and finally r4 sends
+   an LSAck to confirm the two updates to m/c 5.
 
+10. We configure r6:
+```
+r6(config-router)# router-id  192.168.0.6
+r6(config-router)# network  10.0.2.0/24 area 2
+r6(config-router)# no network  10.0.1.0/24 area 1
+r6(config-router)# area 2 stub no-summary
+```
+Ad we do the same to r4. We can see that:
+* On SimNet0 and SimNet1:
+	* We can see the anouncement of 10.0.2.0 by r4 and r3 with type 3 LSA.
+* On SimNet3
+	* There are only type 1 and 2 LSAs as expected.
+	* We can see not LSA type 3 for the default route.
+If we take a look to the r6 learned routes:
+```
+ OSPF Routing Process, Router ID: 192.168.0.6
+ Supports only single TOS (TOS0) routes
+ This implementation conforms to RFC2328
+ RFC1583Compatibility flag is disabled
+ OpaqueCapability flag is disabled
+ Initial SPF scheduling delay 200 millisec(s)
+ Minimum hold time between consecutive SPFs 1000 millisec(s)
+ Maximum hold time between consecutive SPFs 10000 millisec(s)
+ Hold time multiplier is currently 1
+ SPF algorithm last executed 9m06s ago
+ SPF timer is inactive
+ Refresh timer 10 secs
+ Number of external LSA 0. Checksum Sum 0x00000000
+ Number of opaque AS LSA 0. Checksum Sum 0x00000000
+ Number of areas attached to this router: 1
 
+ Area ID: 0.0.0.2 (Stub, no summary)
+   Shortcutting mode: Default, S-bit consensus: no
+   Number of interfaces in this area: Total: 1, Active: 1
+   Number of fully adjacent neighbors in this area: 1
+   Area has no authentication
+   Number of full virtual adjacencies going through this area: 0
+   SPF algorithm executed 22 times
+ Number of LSA 4
+   Number of router LSA 2. Checksum Sum 0x000163ff
+   Number of network LSA 1. Checksum Sum 0x0000cb2f
+   Number of summary LSA 1. Checksum Sum 0x00006f81
+   Number of ASBR summary LSA 0. Checksum Sum 0x00000000
+   Number of NSSA LSA 0. Checksum Sum 0x00000000
+   Number of opaque link LSA 0. Checksum Sum 0x00000000
+   Number of opaque area LSA 0. Checksum Sum 0x00000000
+
+```
+We cannot loacate any LSA type 3 as expected.
+
+11. We can see the update on SimNet0, 1 but not on 2 because it has been set up
+	as stubby. The route is dsitributed by r3 in SimNet0 with a type5 LSA
+	followed with a type4 LSA anouncing r3 as the gateway to reach the type 5
+	anouncement.
+
+The ping reaches the host beacuse it has r4 as a deault gateway.
+
+12. We can redsitribute the information on r5 `r5(config-router)# default-information originate`.
+	* We can see on SimNet1 a type 5 LSA anouncing the default route in the
+		area
+	* On SimNet0 we can see that r3 forwards the type 5 LSA and then a LSA type
+		4 to set himself as the gateway.
+
+13. To list the border routers taht r1 has we run:
+```
+r1# show ip ospf border-routers
+============ OSPF router routing table =============
+R    192.168.0.3           [10] area: 0.0.0.0, ABR
+                           via 172.16.0.3, eth0
+R    192.168.0.4           [10] area: 0.0.0.0, ABR
+                           via 172.16.0.4, eth0
+R    192.168.0.5        IA [20] area: 0.0.0.0, ASBR
+                           via 172.16.0.3, eth0
+```
+
+We see listed the active routers than are located on the edge of the areas.
+Once the link is down, we can see that r3 generates a LSA type 4 with age 3600.
+And r4 does the same.
+
+Now r has the following border routers:
+```
+r1# show ip ospf border-routers
+============ OSPF router routing table =============
+R    192.168.0.3           [10] area: 0.0.0.0, ABR
+                           via 172.16.0.3, eth0
+R    192.168.0.4           [10] area: 0.0.0.0, ABR
+                           via 172.16.0.4, eth0
+```
+As it can be seen r5 is not listed any more.
+
+If we restore the link:
+* There are the typical type 5 and 4 LSAs as if the net has been just added.
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
@@ -564,3 +659,5 @@ Once done, we can see that on SimNet0:
 * How to change net hop on the default route (RIPv2-5)
 * Chaotic capture when we introduce r3 to the ospf. (OSPF-4)
 * Chaotic dialog when r2 leaves. (OSPF-8)
+* Type 3 LSA not seen on 10? (OSPF-10)
+* Why that age? (OSPF-13)
