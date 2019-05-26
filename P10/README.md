@@ -307,9 +307,125 @@ R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:29:07
 	The response goes from h11 to r1 who routes it to r3 due to the entry
 	192.168.0.0/24. R3 tries to reach the host on network 0 (because it fits
 	the mask) and generates an ICMP network unreachable that get fw to SimNet4.
+
+### Exercice 2
+1. After setting up teh scenario, we can ping h11 from h223. We can see that it
+   succeds. If we check the RIB table of r3:
+   ```
+   r3# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+R>* 172.16.0.0/16 [120/2] via 192.168.2.1, eth2, 00:04:45
+C>* 192.168.0.0/24 is directly connected, eth4
+R>* 192.168.0.128/25 [120/2] via 192.168.5.222, eth1, 00:04:45
+C>* 192.168.1.0/24 is directly connected, eth3
+C>* 192.168.2.0/24 is directly connected, eth2
+R>* 192.168.3.0/24 [120/2] via 192.168.2.1, eth2, 00:04:45
+R>* 192.168.4.0/24 [120/2] via 192.168.2.1, eth2, 00:04:45
+C>* 192.168.5.0/24 is directly connected, eth1
+   ```
+	* We can see entries for all the networks, including the ones that are not
+		classfull.
+	* We can see entries fro all nets on the rip messages.
+
+2. We add the lo interfaces with `ip address add @IP dev lo` and `network @IP/32`:
+	* If we ping from h11 we can reach all the routers.
+```
+r1# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.16.0.0/16 is directly connected, eth1
+R>* 192.168.0.0/24 [120/2] via 192.168.2.3, eth2, 00:09:51
+R>* 192.168.0.128/25 [120/2] via 192.168.3.222, eth3, 00:09:52
+R>* 192.168.1.0/24 [120/2] via 192.168.2.3, eth2, 00:09:51
+C>* 192.168.2.0/24 is directly connected, eth2
+C>* 192.168.3.0/24 is directly connected, eth3
+C>* 192.168.4.0/24 is directly connected, eth4
+R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:09:52
+C>* 192.168.100.1/32 is directly connected, lo
+R>* 192.168.100.3/32 [120/2] via 192.168.2.3, eth2, 00:06:47
+R>* 192.168.100.4/32 [120/3] via 192.168.2.3, eth2, 00:03:44
+R>* 192.168.100.222/32 [120/2] via 192.168.3.222, eth3, 00:09:52
+
+```
+```
+r4# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.16.0.0/16 is directly connected, eth2
+R>* 192.168.0.0/24 [120/2] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.0.128/25 [120/3] via 192.168.1.3, eth1, 00:05:24
+C>* 192.168.1.0/24 is directly connected, eth1
+R>* 192.168.2.0/24 [120/2] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.3.0/24 [120/3] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.4.0/24 [120/3] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.5.0/24 [120/2] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.100.1/32 [120/3] via 192.168.1.3, eth1, 00:05:24
+R>* 192.168.100.3/32 [120/2] via 192.168.1.3, eth1, 00:05:24
+C>* 192.168.100.4/32 is directly connected, lo
+R>* 192.168.100.222/32 [120/3] via 192.168.1.3, eth1, 00:05:24
+```
+We can see listed entries for all the lo interfaces as well as all the other
+networks.
+
+3. After several seconds we can see taht the RIB changes:
+```
+r1# show ip route
+Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
+       I - ISIS, B - BGP, > - selected route, * - FIB route
+
+C>* 127.0.0.0/8 is directly connected, lo
+C>* 172.16.0.0/16 is directly connected, eth1
+R>* 192.168.0.0/24 [120/3] via 192.168.3.222, eth3, 00:02:59
+R>* 192.168.0.128/25 [120/2] via 192.168.3.222, eth3, 00:08:03
+R>* 192.168.1.0/24 [120/3] via 192.168.3.222, eth3, 00:02:59
+C>* 192.168.2.0/24 is directly connected, eth2
+C>* 192.168.3.0/24 is directly connected, eth3
+C>* 192.168.4.0/24 is directly connected, eth4
+R>* 192.168.5.0/24 [120/2] via 192.168.3.222, eth3, 00:08:03
+C>* 192.168.100.1/32 is directly connected, lo
+R>* 192.168.100.3/32 [120/3] via 192.168.3.222, eth3, 00:02:59
+R>* 192.168.100.4/32 [120/4] via 192.168.3.222, eth3, 00:02:59
+R>* 192.168.100.222/32 [120/2] via 192.168.3.222, eth3, 00:08:03
+
+```
+-
+	* Now the default gateway to reach SimNet0  and all the other routes that
+		used the broken link is r222.
+	* If we take a look to the response messages, at some point, r1 generates a
+		response with only pne metric: `IP Address: 192.168.0.0, Metric: 16`
+		meaning that the link is now broken. Then it will anonunce that its not
+		capable of reaching 100.3 and 100.4 and then 1.0. Now it changes its RIB.
+
+4. If we try to ping r3 from h11:
+	* It works
+	* After running `traceroute` we can conclude that:
+		* The first hop is r1
+		* The second one is r222
+		* And the last one r3
+	* It is teh optimal path with this link down.
+
+* If we try to do the same to r4:
+	* It works
+	* After running `traceroute` we can conclude that:
+		* The hops are r1, r222, r3 and finally r4
+		* It would be better to go through SimNet6
+		* We could activate RIP on r1 eth1 (172.16.0.0/16)
+
+5. We add the static route with `r1(config)# ip route 10.10.10.10/24 172.16.0.5`
+	and the redistribute it with `r1(config-router)# redistribute static`.
+	* The path taken is r3, r4 and finaly to r5.
+	* The path is the optimal.
+	* The network is anonunced with metric 1 in SimNet3 by r1 and with also metric 1.
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
 	(RIPv1-9)
 * 192.16.0.128/28 does not because it is not a classfull net? (RIPv1-14)
-
+* Why metric 1 in both cases? (RIPv2-5)
