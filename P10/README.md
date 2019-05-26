@@ -352,6 +352,7 @@ R>* 192.168.100.4/32 [120/3] via 192.168.2.3, eth2, 00:03:44
 R>* 192.168.100.222/32 [120/2] via 192.168.3.222, eth3, 00:09:52
 
 ```
+
 ```
 r4# show ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
@@ -375,6 +376,7 @@ We can see listed entries for all the lo interfaces as well as all the other
 networks.
 
 3. After several seconds we can see taht the RIB changes:
+
 ```
 r1# show ip route
 Codes: K - kernel route, C - connected, S - static, R - RIP, O - OSPF,
@@ -395,7 +397,7 @@ R>* 192.168.100.4/32 [120/4] via 192.168.3.222, eth3, 00:02:59
 R>* 192.168.100.222/32 [120/2] via 192.168.3.222, eth3, 00:08:03
 
 ```
--
+The results are:
 	* Now the default gateway to reach SimNet0  and all the other routes that
 		used the broken link is r222.
 	* If we take a look to the response messages, at some point, r1 generates a
@@ -423,6 +425,7 @@ R>* 192.168.100.222/32 [120/2] via 192.168.3.222, eth3, 00:08:03
 	* The path taken is r3, r4 and finaly to r5.
 	* The path is the optimal.
 	* The network is anonunced with metric 1 in SimNet3 by r1 and with also metric 1.
+
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
