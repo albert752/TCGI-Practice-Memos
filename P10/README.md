@@ -436,6 +436,125 @@ The results are:
 	* Pings form h33 follow the path: r3, r4, r1, r5.
 	* We could improve the path adding the default route to r4 or changin the
 		advertised next hop to the r5 interface:
+## OSPF
+### Exercice 3
+1. In order to activate OSPF on r1 for eth0 in area 0 we run:
+```
+r1(config)# router ospf
+r1(config-router)# network  172.16.0.0/24 area 0
+```
+.
+	* The OSPF database is the following:
+```
+OSPF Routing Process, Router ID: 10.0.3.1
+ Supports only single TOS (TOS0) routes
+ This implementation conforms to RFC2328
+ RFC1583Compatibility flag is disabled
+ OpaqueCapability flag is disabled
+ Initial SPF scheduling delay 200 millisec(s)
+ Minimum hold time between consecutive SPFs 1000 millisec(s)
+ Maximum hold time between consecutive SPFs 10000 millisec(s)
+ Hold time multiplier is currently 1
+ SPF algorithm last executed 1m47s ago
+ SPF timer is inactive
+ Refresh timer 10 secs
+ Number of external LSA 0. Checksum Sum 0x00000000
+ Number of opaque AS LSA 0. Checksum Sum 0x00000000
+ Number of areas attached to this router: 1
+
+ Area ID: 0.0.0.0 (Backbone)
+   Number of interfaces in this area: Total: 1, Active: 1
+   Number of fully adjacent neighbors in this area: 0
+   Area has no authentication
+   SPF algorithm executed 1 times
+   Number of LSA 1
+   Number of router LSA 1. Checksum Sum 0x000093db
+   Number of network LSA 0. Checksum Sum 0x00000000
+   Number of summary LSA 0. Checksum Sum 0x00000000
+   Number of ASBR summary LSA 0. Checksum Sum 0x00000000
+   Number of NSSA LSA 0. Checksum Sum 0x00000000
+   Number of opaque link LSA 0. Checksum Sum 0x00000000
+   Number of opaque area LSA 0. Checksum Sum 0x00000000
+```
+.
+	* As it can be see the router id 10.0.3.1
+	* If we take a look to the SimNet we can see:
+		* The 5th Hello message includes now the designated router witch is
+			himself
+			* The previous message included him in the m/c group of DR in order
+				to listen for LSU (224.0.0.6).
+		* We can also see other m/c join for the OSPF router group (224.0.0.5)
+		* The hello messages include the router priority set to 1 and other
+			parameters:
+![Img1](./images/img1.png)
+.
+	* After deactivating OSPF on eth0, we can see two IGMP leave group reports.
+
+2. We create the scenario by running:
+First: 
+
+```
+root@r1:~# ip address add 192.168.0.1/32 dev lo
+r1(config-router)# router-id 192.168.0.1
+```
+And the same for r2 with its @IP. And then, almost at the same time, we run:
+```
+network 172.16.0.0/24 area 0
+```
+
+We can see that, after the first two packets, hello frames have the active
+neighbour field activated with each others @IP. After some other hello packets,
+the r2 send to the r1 the database description (r2 is the master because they
+both have the same priority but r2 has a higher @IP). After that r2 is set to
+DR and r1 to BDR. Then r1 sends the database description to r1 and they both
+join the DR m/c group. Finaly, with LSUpdates, LSAck and LSReq; they exchange
+the whole database.
+
+![Image2](./images/img2.png)
+
+3. We used the command `network 10.0.3.0^C4 area 0` on r1 to add the net to
+   area 0. We can see that r1 generates an LSUpdate to the m/c DR group and gets
+   LSAck by r2. Then, after some hello packets, r2 generates an LSUpdate for
+   the m/c group of all OSPF routers.
+   * The net gets advertised as transit.
+![Image3](./images/img3.png)
+
+4. To do so, we run:
+	* `ip address add @IP dev lo`
+	* `(configure-router) router-id @IP`
+	* `network @IPs`
+Once done, we can see that on SimNet0:
+	* r3 asks for the DR, witch is the r2
+	* r3 becomes the master and sends the db description to r2 unicast
+	* r2 and r1 respond with their db description, unicast
+	* Once done, r2 and r1 as well as r3 request information to each other and
+		send LSUpdates in response (Request in unicast, response in m/c and
+		unicast). Responses in m/c are updated with the nets introduced by
+		r3.
+		There are multiple messages exchanged.
+	* LSAcks are exchanged to validate the flames untill they reach the FULL
+		state.
+
+5. In order to add `10.0.4.0/24` to the ospf, we run the network command on r2
+   (DR). Because r2 is the DR, it automatically generates an LSUpdate to the
+   m/c group 224.0.0.5 witch represents all OSPF routers. This mesages gets
+   LSAcked by r3 via 224.0.0.6 and by r1 (BDR) via 224.0.0.5.
+
+6. We use the same commands as before. We can see a dialog in witch r4 asks for
+   the information to r2 and r1 (being r4 the master) and r2 sending updates to
+   the m/c group that are LSAcked by r3 adn r4 via m/c 6 and by r1 via m/c 5.
+
+7. We add the net with the normal network command. We can see that:
+	* r4 sends and LSUpdate to m/c 6
+	* r2 fw this LSUpdate to m/c 5
+	* r1 and r3 LSAck the message via m/c 5 and 6.
+
+8. To stop the OSPF in r2 we run `no router ospf`. We can see that, after some
+   LSUpdates, the new DR is r1 and the BDR is r4 as expected.
+ 
+9. 
+
+
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
@@ -443,3 +562,5 @@ The results are:
 * 192.16.0.128/28 does not because it is not a classfull net? (RIPv1-14)
 * Why metric 1 in both cases? (RIPv2-5)
 * How to change net hop on the default route (RIPv2-5)
+* Chaotic capture when we introduce r3 to the ospf. (OSPF-4)
+* Chaotic dialog when r2 leaves. (OSPF-8)
