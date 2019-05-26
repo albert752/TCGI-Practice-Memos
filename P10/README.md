@@ -427,9 +427,19 @@ The results are:
 	* The path is the optimal.
 	* The network is anonunced with metric 1 in SimNet3 by r1 and with also metric 1.
 
+6. We could originate default routes at r1 and r4 because they have acces
+   to r5. We are going to configure r1:
+    * `root@r1:~# route add default gw 172.16.0.5`
+    * `r1(config-router)# default-information originate`
+	* Now both pings form h11 and h33 to the internet work.
+	* Pings from h11 follow the path: r1, r5
+	* Pings form h33 follow the path: r3, r4, r1, r5.
+	* We could improve the path adding the default route to r4 or changin the
+		advertised next hop to the r5 interface:
 ## Issues
 * Is adding an interface the same as adding its network?
 * When we run a no network, why it does not get anounced through the net?
 	(RIPv1-9)
 * 192.16.0.128/28 does not because it is not a classfull net? (RIPv1-14)
 * Why metric 1 in both cases? (RIPv2-5)
+* How to change net hop on the default route (RIPv2-5)
