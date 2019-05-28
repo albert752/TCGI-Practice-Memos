@@ -117,3 +117,15 @@ server:~# ssmpingd
 host4:~# ssmping 172.16.1.3
 ```
 
+## Disclaimer
+You may find some error or typos, if you do please report them.
+
+## Author
+
+* **Albert Azemar i Rovira** - *Initial work* -
+	[albert752](https://github.com/albert752)
+
+## License
+
+This project is licensed under the MIT License - see the
+[LICENSE.md](./LICENSE.md) file for details
